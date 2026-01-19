@@ -1,0 +1,226 @@
+<div class="tm-layout">
+
+  <div class="tm-map-card">
+    <div class="tm-header">
+      <div class="tm-title">
+        <div class="h1">Court {{ courtName }}</div>
+        <div class="sub">
+          <span class="badge rg">ROLAND GARROS</span>
+          <span class="badge dark">{{ eventCategory }}</span>
+          <span class="badge dark">{{ eventRound }}</span>
+          <span class="badge light">{{ totalCapacity }} places</span>
+        </div>
+      </div>
+
+      <div class="tm-legend">
+        <div class="legend-item"><span class="dot standard"></span> Standard</div>
+        <div class="legend-item"><span class="dot accessible"></span> Accessible</div>
+        <div class="legend-item"><span class="dot vip"></span> VIP</div>
+        <div class="legend-item"><span class="dot soldout"></span> Complet</div>
+      </div>
+    </div>
+
+    <div class="tm-map-area">
+      <div class="zoom-controls">
+        <button type="button" (click)="zoomIn()" title="Zoom avant">+</button>
+        <button type="button" (click)="zoomOut()" title="Zoom arrière">−</button>
+        <button type="button" (click)="resetView()" title="Réinitialiser">⟳</button>
+      </div>
+
+      <svg class="seatmap"
+           [attr.viewBox]="'0 0 ' + viewW + ' ' + viewH"
+           (wheel)="onWheel($event)"
+           (pointerdown)="onPointerDown($event)"
+           (pointermove)="onPointerMove($event)"
+           (pointerup)="onPointerUp()"
+           (pointerleave)="onPointerUp()">
+
+        <defs>
+          <!-- Fond stade dégradé -->
+          <radialGradient id="bowl" cx="50%" cy="50%" r="65%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+            <stop offset="60%" stop-color="#f8f9fa" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#e9ecef" stop-opacity="1"/>
+          </radialGradient>
+
+          <!-- Terre battue réaliste (discret) -->
+          <linearGradient id="clay-court" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#D4A574" />
+            <stop offset="50%" stop-color="#C96A3A" />
+            <stop offset="100%" stop-color="#B8653A" />
+          </linearGradient>
+
+          <!-- Ombre subtile du filet -->
+          <linearGradient id="net-shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="rgba(0,0,0,0.05)" />
+            <stop offset="100%" stop-color="rgba(0,0,0,0.01)" />
+          </linearGradient>
+        </defs>
+
+        <!-- Fond du stade -->
+        <rect x="0" y="0" width="1000" height="700" fill="url(#bowl)"></rect>
+
+        <g [attr.transform]="transformG">
+          <!-- Ellipse extérieure (stade) -->
+          <ellipse cx="500" cy="350" rx="340" ry="270"
+                   fill="none" stroke="rgba(0,89,76,0.06)" stroke-width="18"></ellipse>
+
+          <!-- Sections de sièges -->
+          <g class="sections">
+            <ng-container *ngFor="let s of sections">
+              <path [attr.d]="s.pathD"
+                    [attr.class]="getSectionFillClass(s)"
+                    (click)="onPickSection(s)"></path>
+
+              <text class="sec-label"
+                    [attr.x]="s.centroid.x"
+                    [attr.y]="s.centroid.y"
+                    text-anchor="middle"
+                    dominant-baseline="middle">
+                {{ s.label }}
+              </text>
+            </ng-container>
+          </g>
+
+          <!-- TERRAIN DE TENNIS (VERSION DISCRÈTE) -->
+          <g class="court">
+            <!-- Rectangle principal terre battue -->
+            <rect x="350" y="255" width="300" height="190" rx="20" ry="20"
+                  fill="url(#clay-court)" 
+                  stroke="rgba(184, 101, 58, 0.8)" 
+                  stroke-width="4"
+                  opacity="0.85"></rect>
+
+            <!-- Lignes blanches du court (plus fines et discrètes) -->
+            <!-- Ligne de fond gauche -->
+            <rect x="375" y="280" width="250" height="2.5" 
+                  fill="rgba(255,255,255,0.75)" 
+                  opacity="0.9"></rect>
+            
+            <!-- Ligne de fond droite -->
+            <rect x="375" y="417.5" width="250" height="2.5" 
+                  fill="rgba(255,255,255,0.75)" 
+                  opacity="0.9"></rect>
+
+            <!-- Lignes de service gauche -->
+            <rect x="410" y="320" width="180" height="2.5" 
+                  fill="rgba(255,255,255,0.75)" 
+                  opacity="0.9"></rect>
+            
+            <!-- Lignes de service droite -->
+            <rect x="410" y="377.5" width="180" height="2.5" 
+                  fill="rgba(255,255,255,0.75)" 
+                  opacity="0.9"></rect>
+
+            <!-- Ligne centrale verticale -->
+            <rect x="498.75" y="280" width="2.5" height="140" 
+                  fill="rgba(255,255,255,0.75)" 
+                  opacity="0.9"></rect>
+
+            <!-- Filet (très subtil) -->
+            <rect x="492" y="280" width="16" height="140" 
+                  fill="url(#net-shadow)" 
+                  opacity="0.3"></rect>
+            
+            <!-- Bande blanche du filet -->
+            <rect x="498" y="280" width="4" height="140" 
+                  fill="rgba(255,255,255,0.6)" 
+                  opacity="0.7"></rect>
+
+            <!-- Logo RG (watermark très discret) -->
+            <text x="500" y="350" 
+                  text-anchor="middle" 
+                  dominant-baseline="middle" 
+                  class="rg-logo">RG</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- PANNEAU LATÉRAL -->
+  <div class="tm-panel">
+    <div class="panel-top">
+      <div class="panel-title">
+        <div class="t">Réservation</div>
+        <div class="big">{{ filteredSections.length }}</div>
+        <div class="muted">sections disponibles</div>
+      </div>
+
+      <div class="panel-filters">
+        <div class="chip">
+          <span class="lbl">Tickets</span>
+          <select [(ngModel)]="ticketsCount">
+            <option [ngValue]="1">1 Ticket</option>
+            <option [ngValue]="2">2 Tickets</option>
+            <option [ngValue]="3">3 Tickets</option>
+            <option [ngValue]="4">4 Tickets</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <span class="lbl">Type</span>
+          <select [(ngModel)]="filterType">
+            <option value="All">Tous</option>
+            <option value="Standard">Standard</option>
+            <option value="Accessible">Accessible</option>
+            <option value="VIP">VIP</option>
+          </select>
+        </div>
+
+        <div class="chip">
+          <span class="lbl">Tri</span>
+          <select [(ngModel)]="activeTab">
+            <option value="Lowest">Prix bas</option>
+            <option value="Best">Meilleurs</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-tabs">
+      <button type="button" [class.active]="activeTab==='Lowest'" (click)="activeTab='Lowest'">Prix le plus bas</button>
+      <button type="button" [class.active]="activeTab==='Best'" (click)="activeTab='Best'">Meilleures places</button>
+    </div>
+
+    <div class="panel-list">
+      <div *ngIf="selectedSection" class="picked">
+        <div class="picked-title">Sélection actuelle</div>
+        <div class="picked-row">
+          <div class="mini">
+            <div class="mini-num">Section {{ selectedSection.label }}</div>
+            <div class="mini-meta">{{ formatType(selectedSection.type) }} • {{ selectedSection.price }}€</div>
+          </div>
+          <div class="mini-right">
+            <div class="pill">{{ selectedSection.available }} dispo</div>
+          </div>
+        </div>
+
+        <div class="mt-2 small text-muted" style="color: #6c757d; font-size: 0.85rem;">
+          Vos places s'affichent dans le panier ci-dessus.
+        </div>
+      </div>
+
+      <div class="list-title">Résultats</div>
+
+      <button type="button" class="result"
+              *ngFor="let s of filteredSections.slice(0, 30)"
+              (click)="onPickSection(s)">
+        <div class="result-left">
+          <div class="map-dot" 
+               [class.vip]="s.type==='VIP'" 
+               [class.accessible]="s.type==='Accessible'"></div>
+          <div class="result-info">
+            <div class="line1">Section {{ s.label }}</div>
+            <div class="line2">{{ formatType(s.type) }} • {{ s.ring === 'inner' ? 'Tribune intérieure' : 'Tribune extérieure' }}</div>
+          </div>
+        </div>
+        <div class="result-right">
+          <div class="price">{{ s.price }}€</div>
+          <div class="avail">{{ s.available }} dispo</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+</div>

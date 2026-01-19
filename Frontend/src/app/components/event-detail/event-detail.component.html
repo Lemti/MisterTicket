@@ -1,0 +1,135 @@
+<div class="container mt-4" *ngIf="!loading; else loadingTpl">
+  <div class="mb-4">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      &larr; Retour aux événements
+    </button>
+  </div>
+
+  <div class="card mb-4 shadow">
+    <div class="card-header bg-primary text-white">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">{{ event?.name }}</h2>
+        <span class="badge bg-warning text-dark fs-6">ROLAND GARROS</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <h4 class="text-muted mb-3">🎾 Informations du match</h4>
+
+          <div class="event-details">
+            <div class="detail-item">
+              <strong>📅 Date :</strong>
+              <span>{{ formatDate(event?.eventDate || '') }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>🏟️ Court :</strong>
+              <span>{{ event?.courtName }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>📋 Catégorie :</strong>
+              <span class="badge bg-info">{{ event?.category }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>🎯 Tour :</strong>
+              <span class="badge bg-warning text-dark">{{ event?.round }}</span>
+            </div>
+            <div class="detail-item mt-3">
+              <strong>📝 Description :</strong>
+              <p class="mt-2">{{ event?.description || 'Aucune description.' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Commande (same page) -->
+        <div class="col-md-4">
+          <div class="info-card">
+            <h5 class="text-center mb-3">🧾 Commande</h5>
+
+            <div *ngIf="errorMsg" class="alert alert-danger py-2">{{ errorMsg }}</div>
+            <div *ngIf="successMsg" class="alert alert-success py-2">{{ successMsg }}</div>
+
+            <div class="mb-2">
+              <strong>Places sélectionnées :</strong>
+
+              <div class="mt-2" *ngIf="selectedSeats.length; else noneSel">
+                <ul class="list-group small">
+                  <li class="list-group-item d-flex justify-content-between align-items-center"
+                      *ngFor="let s of selectedSeats">
+                    <span>{{ s.seatNumber }} ({{ s.zone }})</span>
+                    <span class="fw-bold">{{ s.price }}€</span>
+                  </li>
+                </ul>
+
+                <div class="d-flex justify-content-between mt-3">
+                  <span class="fw-bold">Total</span>
+                  <span class="fw-bold text-success">{{ totalAmount }}€</span>
+                </div>
+              </div>
+
+              <ng-template #noneSel>
+                <div class="text-muted small">Clique une section sur la carte.</div>
+              </ng-template>
+            </div>
+
+            <hr />
+
+            <button class="btn btn-primary w-100 mb-2"
+                    (click)="commander()"
+                    [disabled]="!selectedSeats.length || reserving || paying">
+              {{ reserving ? 'Réservation...' : 'Commander (réserver)' }}
+            </button>
+
+            <button class="btn btn-warning w-100 mb-2"
+                    (click)="payerSimulation()"
+                    [disabled]="!reservation || paying || reserving">
+              {{ paying ? 'Paiement...' : 'Payer (simulation)' }}
+            </button>
+
+            <!-- ✅ PDF obligatoire + QR : activé uniquement si Paid -->
+            <button class="btn btn-success w-100"
+                    (click)="telechargerBillet()"
+                    [disabled]="!reservation || downloading || reservation.status !== 'Paid'">
+              {{ downloading ? 'Téléchargement...' : 'Télécharger le billet (PDF)' }}
+            </button>
+
+            <div class="mt-3 small text-muted">
+              PDF + QR uniquement après paiement.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow">
+    <div class="card-header bg-dark text-white">
+      <h3 class="mb-0">💺 Sélectionnez vos places</h3>
+      <small>Cliquez sur une section disponible</small>
+    </div>
+
+    <div class="card-body p-3">
+      <app-seat-map
+        [courtId]="event?.courtId || 0"
+        [eventId]="event?.id || 0"
+        [courtName]="event?.courtName || 'Court'"
+        [eventCategory]="event?.category || ''"
+        [eventRound]="event?.round || ''"
+        [seats]="seats"
+        [totalCapacity]="seats.length"
+        (seatsSelected)="onSeatsSelected($event)">
+      </app-seat-map>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="text-center mt-5">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <h3 class="mt-3">Chargement de l'événement...</h3>
+  </div>
+</ng-template>

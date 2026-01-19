@@ -1,0 +1,143 @@
+<div class="container my-5">
+  <div class="header-section mb-4">
+    <h1 class="text-white fw-bold">📅 Gestion des Événements</h1>
+    <button class="btn btn-success btn-lg" (click)="openCreateForm()">
+      ➕ Créer un Événement
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-white" role="status"></div>
+  </div>
+
+  <!-- Table des événements -->
+  <div *ngIf="!loading" class="card shadow-lg">
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Date</th>
+            <th>Court</th>
+            <th>Catégorie</th>
+            <th>Round</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.id }}</td>
+            <td><strong>{{ event.name }}</strong></td>
+            <td>{{ formatDate(event.eventDate) }}</td>
+            <td>{{ event.courtName }}</td>
+            <td>{{ event.category }}</td>
+            <td>{{ event.round }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning me-2" (click)="openEditForm(event)">
+                ✏️ Modifier
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteEvent(event.id, event.name)">
+                🗑️ Supprimer
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="events.length === 0">
+            <td colspan="7" class="text-center text-muted">Aucun événement disponible</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Formulaire Modal -->
+  <div class="modal-overlay" *ngIf="showForm" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editMode ? 'Modifier l\'Événement' : 'Créer un Événement' }}</h3>
+        <button class="btn-close" (click)="closeForm()">✖</button>
+      </div>
+      
+      <form (ngSubmit)="saveEvent()">
+        <div class="mb-3">
+          <label class="form-label">Nom de l'événement</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            [(ngModel)]="eventForm.name" 
+            name="name"
+            placeholder="Ex: Finale Hommes - Nadal vs Djokovic"
+            required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea 
+            class="form-control" 
+            [(ngModel)]="eventForm.description" 
+            name="description"
+            rows="2"></textarea>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Date et heure</label>
+            <input 
+              type="datetime-local" 
+              class="form-control" 
+              [(ngModel)]="eventForm.eventDate" 
+              name="eventDate"
+              required>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Court</label>
+            <select 
+              class="form-control" 
+              [(ngModel)]="eventForm.courtId" 
+              name="courtId"
+              required>
+              <option *ngFor="let court of courts" [value]="court.id">
+                {{ court.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Catégorie</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="eventForm.category" 
+              name="category"
+              placeholder="Ex: Simple Hommes"
+              required>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Round</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="eventForm.round" 
+              name="round"
+              placeholder="Ex: Finale"
+              required>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-fill">
+            💾 {{ editMode ? 'Modifier' : 'Créer' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

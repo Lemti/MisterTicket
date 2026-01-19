@@ -1,0 +1,131 @@
+<div class="container my-5">
+  <h1 class="text-center mb-5 text-white fw-bold">
+    🎫 Mes Réservations
+  </h1>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadReservations()">
+      Réessayer
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-white" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Aucune réservation -->
+  <div *ngIf="!loading && reservations.length === 0" class="text-center">
+    <div class="card shadow-lg p-5">
+      <h3 class="mb-3">Aucune réservation</h3>
+      <p class="text-muted">Vous n'avez pas encore réservé de places.</p>
+      <a routerLink="/events" class="btn btn-primary mt-3">Voir les événements</a>
+    </div>
+  </div>
+
+  <!-- Liste des réservations -->
+  <div *ngIf="!loading && reservations.length > 0" class="row g-4">
+    <div class="col-lg-6" *ngFor="let reservation of reservations">
+      <div class="card reservation-card h-100 shadow">
+        <div class="card-body">
+          <!-- En-tête -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h5 class="card-title fw-bold mb-2">{{ reservation.eventName }}</h5>
+              <span [class]="getStatusBadge(reservation.status)">
+                {{ getStatusText(reservation.status) }}
+              </span>
+            </div>
+            <div class="text-end">
+              <div class="text-muted small">#{{ reservation.id }}</div>
+            </div>
+          </div>
+
+          <!-- Détails -->
+          <div class="reservation-details mt-3">
+            <!-- Date réservation -->
+            <div class="detail-row mb-2">
+              <span class="fw-bold">📅 Date réservation :</span>
+              <span>{{ formatDate(reservation.reservationDate) }}</span>
+            </div>
+
+            <!-- Sièges -->
+            <div class="detail-row mb-2">
+              <span class="fw-bold">🪑 Sièges :</span>
+              <span class="fw-semibold">{{ reservation.seatNumbers.join(', ') }}</span>
+            </div>
+
+            <!-- Montant -->
+            <div class="detail-row mb-3">
+              <span class="fw-bold">💰 Montant :</span>
+              <span class="price fw-bold text-primary">{{ reservation.totalAmount }}€</span>
+            </div>
+
+            <!-- Temps restant (si Pending) -->
+            <div *ngIf="reservation.status === 'Pending'" class="alert alert-warning p-2 mb-3">
+              <small>
+                {{ getTimeRemaining(reservation.expiresAt) }}
+                <br>
+                Payez maintenant pour confirmer votre réservation.
+              </small>
+            </div>
+
+            <!-- ACTIONS : Selon statut -->
+
+            <!-- 1. Réservation PAYÉE -->
+            <div class="mt-4" *ngIf="reservation.status === 'Paid'">
+              <!-- Bouton Annuler -->
+              <button *ngIf="canCancel(reservation)"
+                      [class]="getCancelButtonClass(reservation.status)"
+                      class="w-100 mb-2"
+                      (click)="cancelReservation(reservation.id)">
+                {{ getCancelButtonText(reservation.status) }}
+              </button>
+              
+              <!-- Bouton Télécharger -->
+              <button class="btn btn-success w-100"
+                      (click)="downloadTicket(reservation.id)">
+                📥 Télécharger le billet (PDF)
+              </button>
+            </div>
+
+            <!-- 2. Réservation EN ATTENTE -->
+            <div class="mt-4 pending-payment-section" *ngIf="reservation.status === 'Pending'">
+              <!-- Bouton Annuler -->
+              <button *ngIf="canCancel(reservation)"
+                      type="button"
+                      class="btn btn-danger w-100 mb-3"
+                      style="font-weight: 700; padding: 12px; border-radius: 10px;"
+                      (click)="cancelReservation(reservation.id)">
+                ❌ Annuler la réservation
+              </button>
+              
+              <!-- ✅ BOUTON PAYER - VERSION GARANTIE VISIBLE -->
+              <button type="button"
+                      class="payment-btn w-100"
+                      (click)="payNow(reservation)"
+                      [disabled]="processing">
+                <span *ngIf="!processing">💳 PAYER MAINTENANT</span>
+                <span *ngIf="processing">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Paiement en cours...
+                </span>
+              </button>
+            </div>
+
+            <!-- 3. Réservation ANNULÉE -->
+            <div class="mt-4" *ngIf="reservation.status === 'Cancelled'">
+              <div class="alert alert-secondary p-2 text-center">
+                <small>Cette réservation a été annulée</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

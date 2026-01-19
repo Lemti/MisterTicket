@@ -1,0 +1,73 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-rg">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <img src="assets/roland-garros-logo.png" alt="Roland Garros" height="50" class="me-2">
+      <span class="fw-bold">MisterTicket</span>
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            🏠 Accueil
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/events" routerLinkActive="active">
+            🎾 Événements
+          </a>
+        </li>
+        
+        <!-- Liens Admin -->
+        <li class="nav-item" *ngIf="authService.isLoggedIn() && currentUser?.role === 'Admin'">
+          <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active">
+            📊 Dashboard
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="authService.isLoggedIn() && currentUser?.role === 'Admin'">
+          <a class="nav-link" routerLink="/admin/courts" routerLinkActive="active">
+            🏟️ Gérer Courts
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="authService.isLoggedIn() && (currentUser?.role === 'Admin' || currentUser?.role === 'Organizer')">
+          <a class="nav-link" routerLink="/admin/events" routerLinkActive="active">
+            📅 Gérer Événements
+          </a>
+        </li>
+        
+        <!-- Non connecté -->
+        <li class="nav-item" *ngIf="!authService.isLoggedIn()">
+          <a class="nav-link btn btn-light text-dark px-3 ms-2" routerLink="/login">
+            Connexion
+          </a>
+        </li>
+        
+        <!-- Connecté -->
+        <li class="nav-item dropdown" *ngIf="authService.isLoggedIn()">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" 
+             role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="user-avatar me-2">{{ getInitials() }}</div>
+            <span class="fw-bold">{{ currentUser?.name }}</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+            <li>
+              <a class="dropdown-item" routerLink="/my-reservations">
+                🎫 Mes réservations
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger" (click)="logout()" style="cursor: pointer;">
+                🚪 Déconnexion
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

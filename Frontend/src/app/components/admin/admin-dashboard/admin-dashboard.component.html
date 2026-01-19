@@ -1,0 +1,90 @@
+<div class="container my-5">
+  <h1 class="text-center text-white fw-bold mb-5">📊 Dashboard Admin - Temps Réel</h1>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-white" role="status"></div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div *ngIf="!loading" class="row g-4 mb-5">
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon">🎫</div>
+        <div class="stat-value">{{ stats.totalReservations }}</div>
+        <div class="stat-label">Réservations totales</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">{{ stats.totalRevenue }}€</div>
+        <div class="stat-label">Revenu total</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ stats.pendingReservations }}</div>
+        <div class="stat-label">En attente</div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ stats.paidReservations }}</div>
+        <div class="stat-label">Payées</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dernières réservations -->
+  <div *ngIf="!loading" class="card shadow-lg">
+    <div class="card-header">
+      <h4 class="mb-0">⚡ Dernières Réservations (Temps Réel)</h4>
+      <small class="text-muted">Mise à jour automatique via SignalR</small>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Client</th>
+              <th>Événement</th>
+              <th>Sièges</th>
+              <th>Montant</th>
+              <th>Date</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reservation of reservations.slice(0, 10)">
+              <td><strong>#{{ reservation.id }}</strong></td>
+              <td>{{ reservation.userName }}</td>
+              <td>{{ reservation.eventName }}</td>
+              <td>
+                <span class="badge bg-secondary me-1" *ngFor="let seat of reservation.seatNumbers">
+                  {{ seat }}
+                </span>
+              </td>
+              <td><strong>{{ reservation.totalAmount }}€</strong></td>
+              <td>{{ formatDate(reservation.reservationDate) }}</td>
+              <td>
+                <span [class]="getStatusBadge(reservation.status)">
+                  {{ reservation.status }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="reservations.length === 0">
+              <td colspan="7" class="text-center text-muted">Aucune réservation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

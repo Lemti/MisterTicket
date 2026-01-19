@@ -1,0 +1,48 @@
+/* Couleurs Roland Garros */
+:root {
+  --rg-orange: #FF6B35;
+  --rg-clay: #D84315;
+  --rg-green: #2E7D32;
+  --rg-white: #FFFFFF;
+  --rg-dark: #1A1A1A;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #FF6B35 0%, #D84315 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Cards style */
+.card {
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--rg-orange);
+  border-color: var(--rg-orange);
+}
+
+.btn-primary:hover {
+  background-color: var(--rg-clay);
+  border-color: var(--rg-clay);
+}
+
+.btn-success {
+  background-color: var(--rg-green);
+  border-color: var(--rg-green);
+}

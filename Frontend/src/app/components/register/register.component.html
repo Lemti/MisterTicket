@@ -1,0 +1,74 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card shadow-lg">
+        <div class="card-body p-5">
+          <div class="text-center mb-4">
+            <img src="assets/roland-garros-logo.png" alt="Roland Garros" height="80" class="mb-3">
+            <h2 class="fw-bold">Inscription</h2>
+            <p class="text-muted">Créez votre compte MisterTicket</p>
+          </div>
+
+          <div *ngIf="error" class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+
+          <form (ngSubmit)="register()">
+            <div class="mb-3">
+              <label for="name" class="form-label">Nom complet</label>
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                id="name" 
+                [(ngModel)]="userData.name"
+                name="name"
+                required
+                placeholder="Votre nom">
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input 
+                type="email" 
+                class="form-control form-control-lg" 
+                id="email" 
+                [(ngModel)]="userData.email"
+                name="email"
+                required
+                placeholder="exemple@email.com">
+            </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label">Mot de passe</label>
+              <input 
+                type="password" 
+                class="form-control form-control-lg" 
+                id="password" 
+                [(ngModel)]="userData.password"
+                name="password"
+                required
+                placeholder="••••••••">
+            </div>
+
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-lg w-100 mb-3"
+              [disabled]="loading">
+              <span *ngIf="!loading">S'inscrire</span>
+              <span *ngIf="loading">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Inscription...
+              </span>
+            </button>
+
+            <div class="text-center">
+              <p class="mb-0">Déjà un compte ? 
+                <a routerLink="/login" class="text-decoration-none fw-bold">Se connecter</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

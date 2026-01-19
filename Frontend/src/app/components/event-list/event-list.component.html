@@ -1,0 +1,55 @@
+<div class="container my-5">
+  <h1 class="text-center mb-5 text-white fw-bold">
+    🎾 Événements Roland Garros
+  </h1>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-white" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Events List -->
+  <div *ngIf="!loading && !error" class="row g-4">
+    <div class="col-md-6 col-lg-4" *ngFor="let event of events">
+      <div class="card event-card h-100">
+        <div class="card-body">
+          <div class="event-badge mb-3">{{ event.round }}</div>
+          <h5 class="card-title fw-bold">{{ event.name }}</h5>
+          <p class="card-text text-muted">{{ event.description }}</p>
+          
+          <div class="event-details mt-3">
+            <p class="mb-2">
+              <strong>📅 Date :</strong><br>
+              {{ formatDate(event.eventDate) }}
+            </p>
+            <p class="mb-2">
+              <strong>🏟️ Court :</strong> {{ event.courtName }}
+            </p>
+            <p class="mb-0">
+              <strong>🎯 Catégorie :</strong> {{ event.category }}
+            </p>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent border-0 pb-3">
+          <a [routerLink]="['/events', event.id]" class="btn btn-primary w-100">
+            Réserver des places
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- No events -->
+    <div *ngIf="events.length === 0" class="col-12">
+      <div class="alert alert-info text-center">
+        Aucun événement disponible pour le moment.
+      </div>
+    </div>
+  </div>
+</div>
